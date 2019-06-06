@@ -1,0 +1,28 @@
+Codes for analysis:
+
+Preprocessing 
+  SPM: prep_coregSPM.sh; behaviorAnalysis.m
+  Freesurfer: prep_segmentation.sh
+  Convert freesurfer brain mask to nii: convertMgz2Nii.sh
+Behavioral analysis:
+  behaviorAnalysis: build_designMat.m
+ROIs: 
+  Generate a list of ROIS from freesurfer: roiListGen.m
+  Extract ROI: ROI_analysis.m; 
+GLM:
+  Build design matrix: build_designMat.m
+  Run GLM on ROIs: GLM_analysis.m
+  Plot ROI timectourses and GLM model: roi_plottimecourses.m
+  Statistical maps for each subject: is_ContrastMaps.m
+    SPM map, filtering based on R-squared or t-value
+    Beta histograms: distribution of betas for each ROI. 
+    percent variance explained histogram
+  Plotting function (using SPM): vis_ContrastMaps_plot.m
+    Needs the plotting folder and SPM12
+Functional connectivity:
+  Analysis: fConn_analysis.m
+  Plotting: fConn_analysis_plot.m
+Group analysis:
+  Second-level analysis for contrasts: group_analysis.m
+  Second-level analysis for connectivity: group_analysis_fConn.m
+  Bar plots: group_plotResults.m

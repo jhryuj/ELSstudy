@@ -5,12 +5,12 @@ Joshua Ryu; jhryu25@stanford.edu
 ## Codes for analysis: <br />
 
 ### Preprocessing <br />
-  - SPM: prep_coregSPM.sh; behaviorAnalysis.m <br />
+  - SPM: prep_coregSPM.sh;  preprocessing_spm.m<br />
   - Freesurfer: prep_segmentation.sh <br />
   - Convert freesurfer brain mask to nii: convertMgz2Nii.sh <br />
   
 ### Behavioral analysis: <br />
-  - behaviorAnalysis: build_designMat.m <br />
+  - behaviorAnalysis: behaviorAnalysis.m <br />
   
 ### ROIs: <br />
   - Generate a list of ROIS from freesurfer: roiListGen.m <br />

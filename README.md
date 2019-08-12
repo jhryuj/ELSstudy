@@ -1,7 +1,8 @@
 # ELSstudy
 fMRI analysis for the ELS KIDMID task <br />
+Joshua Ryu; jhryu25@stanford.edu
 
-##Codes for analysis: <br />
+## Codes for analysis: <br />
 
 ### Preprocessing <br />
   - SPM: prep_coregSPM.sh; behaviorAnalysis.m <br />

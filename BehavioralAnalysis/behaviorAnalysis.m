@@ -8,6 +8,10 @@
 % data_dir = '/oak/stanford/groups/iang/users/lrborch/204b/Data';
 % subj = '006-T1';
 
+% Server directories:
+% data_dir = '/oak/stanford/groups/iang/users/lrborch/204b/Data';
+% subj = '006-T1';
+
 function behaviorAnalysis(data_dir,subj)
     behavior_dir = fullfile(data_dir,subj,'Behavioral',subj,'model7');
     cd(behavior_dir);

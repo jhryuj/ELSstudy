@@ -6,11 +6,16 @@
 %data_dir = 'D:\Dropbox\Stanford\Current\Psych 204b\Project\Raw Data\';
 %subj_id = '100-T1';
 
+% spmdir = 'Z:\users\lrborch\204b\Codes\spm12';
+% data_dir = 'Z:\users\lrborch\204b\Data\';
+% subj_id = '074-T1';
+% behavior_dir = 'Z:\users\lrborch\204b\Data\072-T1\Behavioral\072-T1\model7'
+
 function preprocessing_spm(spmdir,data_dir,subj_id)
 
 %% Organize data. 
 addpath(spmdir) %path to spm.
-% spm('defaults', 'fmri')
+spm('defaults', 'fmri')
 % spm_jobman('initcfg')
 % spm_get_defaults('cmdline',true)
  
@@ -19,13 +24,7 @@ cd(data_subj_dir)
 
 % make spm output directory
 prep_dir = fullfile(data_subj_dir,'spm');
-mkdir(prep_dir)
-
-% find kidmid file, and T1. unzip in the spm folder
-kidmid_niigz = dir('kidmid*.nii.gz');
-T1_niigz = dir('T1*raw_acpc.nii.gz');
-gunzip(fullfile(data_subj_dir,kidmid_niigz.name))
-gunzip(fullfile(data_subj_dir,T1_niigz.name))
+if ~exist(prep_dir),mkdir(prep_dir);,end
 
 % figure out how to use ac-pc images. vistasoft has its own datastructure.
 % nii = readFileNifti(fullfile(data_subj_dir,T1_niigz.name)); 
@@ -36,9 +35,11 @@ gunzip(fullfile(data_subj_dir,T1_niigz.name))
 kidmid_nii  = dir(fullfile(data_subj_dir,'kidmid*.nii')); %kidmid_nii  = fullfile(kidmid_nii.folder, kidmid_nii.name);
 T1_nii      = dir(fullfile(data_subj_dir,'T1*raw_acpc.nii')); %T1_nii  = fullfile(T1_nii.folder, T1_nii.name);
 
-%% SPM batch 
+% nii = readFileNifti(fullfile(kidmid_nii.folder,kidmid_nii.name));
+%% SPM 
 cd(prep_dir)
 
+%% Preprocessing
 f_raw = spm_select('FPList', data_subj_dir, kidmid_nii.name);
 a = spm_select('FPList', data_subj_dir , T1_nii.name);
 
@@ -106,12 +107,16 @@ matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 
 %% GLM analysis
+behavior_dir = fullfile(data_dir,subj_id,'Behavioral',subj_id,'model7');
 
+f = spm_select('FPList', prep_dir, '^kidmid.*\.nii$');
+
+TR = 2;
 skipscans = 3; % remove 3 scans
 
 % specify GLM
 matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
-% check this*** matlabbatch{1}.spm.stats.fmri_spec.timing.RT = 3; 
+matlabbatch{1}.spm.stats.fmri_spec.timing.RT = TR; 
 matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 16;
 matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 8;
 matlabbatch{1}.spm.stats.fmri_spec.fact = struct('name', {}, 'levels', {});
@@ -124,52 +129,51 @@ matlabbatch{1}.spm.stats.fmri_spec.cvi = 'AR(1)';
 
 % build regressor 
 % remove 3 TRs
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).name = 'ante';
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).onset = [1
-                                                         5
-                                                         7
-                                                         1
-                                                         2
-                                                         5
-                                                         1];
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = [1
-                                                            1
-                                                            1
-                                                            1
-                                                            1
-                                                            1
-                                                            1];
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).pmod = struct('name', {}, 'param', {}, 'poly', {});
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 1;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'ante';
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = [1
-                                                         5
-                                                         7
-                                                         1
-                                                         2
-                                                         5
-                                                         1];
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = [1
-                                                            1
-                                                            1
-                                                            1
-                                                            1
-                                                            1
-                                                            1];
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod = struct('name', {}, 'param', {}, 'poly', {});
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 1;
+behfiles = {'_ant_all.txt', '_delay_all.txt','_outcome_all.txt','_target_all.txt','_missed.txt',...
+        '_ant_gain.txt', '_ant_loss.txt','_ant_neut.txt','_ant_nongain.txt',...
+        '_ant_nonloss.txt','_gain.txt','_loss.txt','_no_gain.txt',...
+        '_no_loss.txt','_nongain_neutral.txt','_nonloss_neutral.txt','_outcome_neutral.txt'};
+
+for condn = 1:length(behfiles)
+    a = load(fullfile(behavior_dir,[subj_id behfiles{condn}]));
+    
+    idx = a(:,1) > TR*skipscans;
+    
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).name = behfiles{condn}(2:end-4);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).onset = a(idx,1)-TR*skipscans; 
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).duration = a(idx,2);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).tmod = 0;
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).pmod = struct('name', {}, 'param', {}, 'poly', {});
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).orth = 1;
+end
+
 matlabbatch{1}.spm.stats.fmri_spec.sess.multi = {''};
-matlabbatch{1}.spm.stats.fmri_spec.sess.regress = struct('name', {}, 'val', {});
-matlabbatch{1}.spm.stats.fmri_spec.sess.multi_reg = {'Z:\users\lrborch\204b\Data\074-T1\spm\rp_kidmid_3mm_2sec_raw_00001.txt'};
+
+rpfile =  spm_select('FPList', prep_dir, '^rp_kidmid.*\.txt$');
+mvmt = load('Z:\users\lrborch\204b\Data\074-T1\spm\rp_kidmid_3mm_2sec_raw_00001.txt');
+mvmt = mvmt(skipscans+1:end,:);
+mvmt_names = {'move_x','move_y','move_z','move_p','move_r','move_y'};
+
+for idx = 1:6
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(idx).name = mvmt_names{idx};
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(idx).val  = mvmt(:,idx);
+end
+
+matlabbatch{1}.spm.stats.fmri_spec.sess.multi_reg = {''};
 matlabbatch{1}.spm.stats.fmri_spec.sess.hpf = 128;
+
 
 % glm in subject space
 cd(prep_dir); glm_dir = fullfile(prep_dir,'glm_nsubjSpace'); mkdir(glm_dir); cd(glm_dir);
 
 matlabbatch{1}.spm.stats.fmri_spec.dir = {glm_dir};
 matlabbatch{1}.spm.stats.fmri_spec.sess.scans = cellstr(spm_file(f(skipscans+1:end,:),'prefix','cr'));% remove 3 TRs 
+
+matlabbatch{2}.spm.stats.fmri_est.spmmat = {fullfile(glm_dir,'SPM.mat')};
+matlabbatch{2}.spm.stats.fmri_est.write_residuals = 1;
+matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
+
+spm_jobman('run',matlabbatch);
 save('matlabbatch_glm.mat','matlabbatch')
 
 % glm in normalized space
@@ -177,6 +181,12 @@ cd(prep_dir);glm_dir = fullfile(prep_dir,'glm_normSpace');mkdir(glm_dir);cd(glm_
 
 matlabbatch{1}.spm.stats.fmri_spec.dir = {glm_dir};
 matlabbatch{1}.spm.stats.fmri_spec.sess.scans = cellstr(spm_file(f(skipscans+1:end,:),'prefix','swcr')); % remove 3 TRs
+
+matlabbatch{2}.spm.stats.fmri_est.spmmat = {fullfile(glm_dir,'SPM.mat')};
+matlabbatch{2}.spm.stats.fmri_est.write_residuals = 1;
+matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
+
+spm_jobman('run',matlabbatch);
 save('matlabbatch_glm.mat','matlabbatch')
 
 %% combine 3D images into 4D for visualization

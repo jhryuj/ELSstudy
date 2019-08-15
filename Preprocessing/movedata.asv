@@ -1,0 +1,47 @@
+
+
+% movedata 
+% unzip the T1 and kidmid for analysis and leave it in the basedir.
+rawdata_dir = 'Z:\ELS_data\';
+basedir = 'Z:\users\lrborch\ELSReward';
+data_dir = fullfile(basedir, 'Data','T1');
+subjlist_dir = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
+
+subjlist_data = readtable(subjlist_dir);
+
+for subjN = 1:size(subjlist_data,1)
+    subjID = subjlist_data{subjN,2}{1}; disp(['....copying ' subjID]);    
+    
+    if contains(subjID,'T1'), folder = 'ELS-T1';
+    elseif contains(subjID,'TK1'), folder = 'ELS-TK1';
+    end
+    
+    subjrawdata_dir = fullfile(rawdata_dir,folder,subjID);
+    
+    if ~exist(subjrawdata_dir)
+        disp([subjID ': No raw data directory']);
+        subjlist_data.DirCheck{subjID} = 'No raw data directory';
+        continue
+    end
+
+    % find kidmid file, and T1. unzip in the spm folder
+    kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*.nii.gz'));
+    T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
+    
+    if ~exist()
+        subjlist_data.DirCheck{subjID} = 'No kidmid directory';
+        continue
+        e;s
+
+    
+    % if it exists, make subj folder and unzip them there
+    subjdata_dir = fullfile(data_dir,subjID);
+    if ~exist(subjdata_dir),mkdir(fullfile(data_dir,subjID));,end
+    
+    gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
+        subjdata_dir)
+    gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
+        subjdata_dir)
+end
+
+writetable(subjlist_data,filename,'Sheet',1,'Range','D1')

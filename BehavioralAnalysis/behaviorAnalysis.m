@@ -26,6 +26,7 @@ function behaviorAnalysis(data_dir,subj)
     %% save behavior;
 
     conditionblocks = struct();
+    condition_times = struct();
 
     if plottimeline
         figure;hold on;

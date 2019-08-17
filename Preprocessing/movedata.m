@@ -61,7 +61,7 @@ for subjN = 1:size(subjlist_data,1)
                 subjdata_dir)
         catch error
             subjlist_data.DirCheck{subjN} = 'Cannot unzip T1 nifti';
-            contin1ue
+            continue
         end
     end
     

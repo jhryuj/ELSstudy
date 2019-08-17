@@ -9,7 +9,7 @@ data_dir        = fullfile(basedir, 'Data');
 subjlist_dir    = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
 logfile         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes_logs/preprocessing/190817/modedatalog.txt';
 
-if exists(logfile), delete(logfile);,end
+if exist(logfile), delete(logfile);,end
 diary(logfile); diary on;
 
 subjlist_data = readtable(subjlist_dir);

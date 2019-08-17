@@ -38,7 +38,7 @@ for subjN = 1:size(subjlist_data,1)
     
     if ~exist(subjdata_dir),mkdir(subjdata_dir);,end
     
-    if ~exist(fullfile(subjdata_dir),kidmid_niigz.name)
+    if ~exist(fullfile(subjdata_dir,kidmid_niigz.name))
         try 
             gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
                 subjdata_dir)
@@ -55,7 +55,7 @@ for subjN = 1:size(subjlist_data,1)
         continue
     end
     
-    if ~exist(fullfile(subjdata_dir),T1_niigz.name)
+    if ~exist(fullfile(subjdata_dir,T1_niigz.name))
         try
             gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
                 subjdata_dir)

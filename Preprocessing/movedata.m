@@ -7,7 +7,6 @@ basedir = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
 data_dir = fullfile(basedir, 'Data');
 subjlist_dir = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
 
-
 subjlist_data = readtable(subjlist_dir);
 
 for subjN = 1:size(subjlist_data,1)
@@ -17,15 +16,17 @@ for subjN = 1:size(subjlist_data,1)
     elseif contains(subjID,'TK1'), folder = 'ELS-TK1';
     end
     
-    subjrawdata_dir = fullfile(rawdata_dir,folder,subjID);
+    subjrawdata_dir     = fullfile(rawdata_dir,folder,subjID);
+    subjrawevfile_dir   = fullfile(data_dir,folder(5:end),kidmid_EV_bx);
     
+    %% Check if directory exists
     if ~exist(subjrawdata_dir)
         disp([subjID ': No raw data directory']);
         subjlist_data.DirCheck{subjID} = 'No raw data directory';
         continue
     end
 
-    % find kidmid file, and T1. unzip in the spm folder
+    %% find kidmid file, and T1. unzip in the spm folder
     kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*.nii.gz'));
     T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
     
@@ -54,8 +55,19 @@ for subjN = 1:size(subjlist_data,1)
             subjdata_dir)
     catch error
         subjlist_data.DirCheck{subjID} = 'Cannot unzip T1 nifti';
-        continue
+        contin1ue
+    end
+    
+    %% find kidmid behavior and move them there
+    subj_behv_dir   = fullfile(subjdata_dir,'Behavioral');
+    subj_rawbeh     = fullfile(subjrawevfile_dir,[subjID '*']); 
+    
+    if ~isempty(dir(subj_rawbeh))
+        subjlist_data.DirCheck{subjID} = 'No behavior data';
+    else
+        copyfile subj_rawbeh subj_behv_dir
     end
 end
 
-writetable(subjlist_data,subjlist_dir)
+newlistfile = fullfile(basedir,'ELSt1checklist_preprocessing1.xlsx');
+writetable(subjlist_data,newlistfile)

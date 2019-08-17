@@ -112,7 +112,7 @@ behavior_dir = fullfile(data_dir,subj_id,'Behavioral',subj_id,'model7');
 f = spm_select('FPList', prep_dir, '^kidmid.*\.nii$');
 
 TR = 2;
-skipscans = 3; % remove 3 scans
+skipscans = 4; % remove 3 scans
 
 % specify GLM
 matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
@@ -135,13 +135,10 @@ behfiles = {'_ant_all.txt', '_delay_all.txt','_outcome_all.txt','_target_all.txt
         '_no_loss.txt','_nongain_neutral.txt','_nonloss_neutral.txt','_outcome_neutral.txt'};
 
 for condn = 1:length(behfiles)
-    a = load(fullfile(behavior_dir,[subj_id behfiles{condn}]));
-    
-    idx = a(:,1) > TR*skipscans;
-    
+    a = load(fullfile(behavior_dir,[subj_id behfiles{condn}]));    
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).name = behfiles{condn}(2:end-4);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).onset = a(idx,1)-TR*skipscans; 
-    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).duration = a(idx,2);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).onset = a(:,1); 
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).duration = a(:,2);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).tmod = 0;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).pmod = struct('name', {}, 'param', {}, 'poly', {});
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).orth = 1;

@@ -1,11 +1,12 @@
-
-
 % movedata 
 % unzip the T1 and kidmid for analysis and leave it in the basedir.
-rawdata_dir = 'Z:\ELS_data\';
-basedir = 'Z:\users\lrborch\ELSReward';
-data_dir = fullfile(basedir, 'Data','T1');
+% 2019/08/15
+
+rawdata_dir = '/oak/stanford/groups/iang/ELS_data';
+basedir = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
+data_dir = fullfile(basedir, 'Data');
 subjlist_dir = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
+
 
 subjlist_data = readtable(subjlist_dir);
 
@@ -18,30 +19,51 @@ for subjN = 1:size(subjlist_data,1)
     
     subjrawdata_dir = fullfile(rawdata_dir,folder,subjID);
     
+    %% Check if directory exists
     if ~exist(subjrawdata_dir)
         disp([subjID ': No raw data directory']);
         subjlist_data.DirCheck{subjID} = 'No raw data directory';
         continue
     end
 
-    % find kidmid file, and T1. unzip in the spm folder
+    %% find kidmid file, and T1. unzip in the spm folder
     kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*.nii.gz'));
     T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
     
-    if ~exist()
-        subjlist_data.DirCheck{subjID} = 'No kidmid directory';
+    if isempty(kidmid_niigz)
+        subjlist_data.DirCheck{subjID} = 'No kidmid nifti';
         continue
-        e;s
-
+    elseif isempty(kidmid_niigz)
+        subjlist_data.DirCheck{subjID} = 'No T1 acpc nifti';
+        continue
+    end
     
     % if it exists, make subj folder and unzip them there
-    subjdata_dir = fullfile(data_dir,subjID);
-    if ~exist(subjdata_dir),mkdir(fullfile(data_dir,subjID));,end
+    subjdata_dir = fullfile(data_dir,folder(5:end),subjID);
+    if ~exist(subjdata_dir),mkdir(subjdata_dir);,end
     
-    gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
-        subjdata_dir)
-    gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
-        subjdata_dir)
+    try 
+        gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
+            subjdata_dir)
+    catch error
+        subjlist_data.DirCheck{subjID} = 'Cannot unzip kidmid nifti';
+        continue
+    end
+    
+    try
+        gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
+            subjdata_dir)
+    catch error
+        subjlist_data.DirCheck{subjID} = 'Cannot unzip T1 nifti';
+        contin1ue
+    end
+    
+    %% find kidmid behavior and move them there
+    subj_evfile_dir = fullfile(data_dir,folder(5:end),kidmid_EV_bx,subjID_
+    
+    
+    
 end
 
-writetable(subjlist_data,filename,'Sheet',1,'Range','D1')
+newlistfile = fullfile(basedir,'ELSt1checklist_preprocessing1.xlsx');
+writetable(subjlist_data,newlistfile)

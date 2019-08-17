@@ -8,7 +8,7 @@ data_dir = fullfile(basedir, 'Data');
 subjlist_dir = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
 
 subjlist_data = readtable(subjlist_dir);
-if isnum(subjlist_data.DirCheck), subjlist_data.DirCheck = num2cell(subjlist_data.DirCheck);,end
+if isnumeric(subjlist_data.DirCheck), subjlist_data.DirCheck = num2cell(subjlist_data.DirCheck);,end
 
 for subjN = 1:size(subjlist_data,1)
     subjID = subjlist_data{subjN,2}{1}; disp(['....copying ' subjID]);    

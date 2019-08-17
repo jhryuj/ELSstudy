@@ -45,7 +45,7 @@ for subjN = 1:size(subjlist_data,1)
     if ~exist(subjdata_dir),mkdir(subjdata_dir);,end
     
     if ~exist(fullfile(subjdata_dir,kidmid_niigz.name))
-        [result, error, msg] = unzip_niigz(kidmid_niigz.folder,kidmid_niigz.name,subjdata_dir);
+        [result, msg] = unzip_niigz(kidmid_niigz.folder,kidmid_niigz.name,subjdata_dir);
         if result == 0 
             disp([subjID ': Cannot unzip kidmid nifti']);
             subjlist_data.DirCheck{subjN} = 'Cannot unzip kidmid nifti';
@@ -62,7 +62,7 @@ for subjN = 1:size(subjlist_data,1)
     end
     
     if ~exist(fullfile(subjdata_dir,T1_niigz.name))
-        [result, error, msg] = unzip_niigz(T1_niigz.folder,T1_niigz.name,subjdata_dir);
+        [result, msg] = unzip_niigz(T1_niigz.folder,T1_niigz.name,subjdata_dir);
         if result == 0 
             disp([subjID ': Cannot unzip T1 nifti']);
             subjlist_data.DirCheck{subjN} = 'Cannot unzip T1 nifti';

@@ -1,4 +1,4 @@
-function [result, error, msg] = unzip_niigz(sourcefolder,sourcefile,destfolder)
+function [result, msg] = unzip_niigz(sourcefolder,sourcefile,destfolder)
     result = 1;    
     
     try

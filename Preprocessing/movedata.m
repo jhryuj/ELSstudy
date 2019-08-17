@@ -2,10 +2,15 @@
 % unzip the T1 and kidmid for analysis and leave it in the basedir.
 % 2019/08/15
 
-rawdata_dir = '/oak/stanford/groups/iang/ELS_data';
-basedir = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
-data_dir = fullfile(basedir, 'Data');
-subjlist_dir = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
+rawdata_dir     = '/oak/stanford/groups/iang/ELS_data';
+basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
+mrvista_path    = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes/vistasoft-master'; addpath(genpath(mrvista_path));
+data_dir        = fullfile(basedir, 'Data');
+subjlist_dir    = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
+logfile         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes_logs/preprocessing/190817/modedatalog.txt';
+
+if exists(logfile), delete(logfile);,end
+diary(logfile); diary on;
 
 subjlist_data = readtable(subjlist_dir);
 if isnumeric(subjlist_data.DirCheck), subjlist_data.DirCheck = num2cell(subjlist_data.DirCheck);,end
@@ -40,10 +45,8 @@ for subjN = 1:size(subjlist_data,1)
     if ~exist(subjdata_dir),mkdir(subjdata_dir);,end
     
     if ~exist(fullfile(subjdata_dir,kidmid_niigz.name))
-        try 
-            gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
-                subjdata_dir)
-        catch error
+        [result, error, msg] = unzip_niigz(kidmid_niigz.folder,kidmid_niigz.name,subjdata_dir);
+        if result == 0 
             disp([subjID ': Cannot unzip kidmid nifti']);
             subjlist_data.DirCheck{subjN} = 'Cannot unzip kidmid nifti';
             continue
@@ -59,10 +62,8 @@ for subjN = 1:size(subjlist_data,1)
     end
     
     if ~exist(fullfile(subjdata_dir,T1_niigz.name))
-        try
-            gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
-                subjdata_dir)
-        catch error
+        [result, error, msg] = unzip_niigz(T1_niigz.folder,T1_niigz.name,subjdata_dir);
+        if result == 0 
             disp([subjID ': Cannot unzip T1 nifti']);
             subjlist_data.DirCheck{subjN} = 'Cannot unzip T1 nifti';
             continue
@@ -73,13 +74,17 @@ for subjN = 1:size(subjlist_data,1)
     subj_behv_dir   = fullfile(subjdata_dir,'Behavioral');
     subj_rawbeh     = fullfile(subjrawevfile_dir,[subjID '*']); 
     
-    if isempty(dir(subj_rawbeh))
-        disp([subjID 'No behavior data']);
-        subjlist_data.DirCheck{subjN} = 'No behavior data';
-    else
-        copyfile(subj_rawbeh,subj_behv_dir)
+    if ~exist(fullfile(subj_behv_dir,subjID,'model7'))
+        if isempty(dir(subj_rawbeh))
+            disp([subjID 'No behavior data']);
+            subjlist_data.DirCheck{subjN} = 'No behavior data';
+        else
+            copyfile(subj_rawbeh,subj_behv_dir)
+        end
     end
 end
 
 newlistfile = fullfile(basedir,'ELSt1checklist_preprocessing1.xlsx');
 writetable(subjlist_data,newlistfile)
+
+diary off;

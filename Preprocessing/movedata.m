@@ -8,6 +8,7 @@ data_dir = fullfile(basedir, 'Data');
 subjlist_dir = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
 
 subjlist_data = readtable(subjlist_dir);
+if isnum(sublist_dir.DirCheck), sublist_dir.DirCheck = num2cell(sublist_dir.DirCheck);,end
 
 for subjN = 1:size(subjlist_data,1)
     subjID = subjlist_data{subjN,2}{1}; disp(['....copying ' subjID]);    
@@ -22,40 +23,46 @@ for subjN = 1:size(subjlist_data,1)
     %% Check if directory exists
     if ~exist(subjrawdata_dir)
         disp([subjID ': No raw data directory']);
-        subjlist_data.DirCheck(subjN) = 'No raw data directory';
+        subjlist_data.DirCheck{subjN} = 'No raw data directory';
         continue
     end
 
-    %% find kidmid file, and T1. unzip in the spm folder
-    kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*.nii.gz'));
-    T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
+    subjdata_dir = fullfile(data_dir,folder(5:end),subjID);
     
+    %% find kidmid file. unzip in the folder
+    kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*.nii.gz'));
     if isempty(kidmid_niigz)
-        subjlist_data.DirCheck(subjN) = 'No kidmid nifti';
-        continue
-    elseif isempty(kidmid_niigz)
-        subjlist_data.DirCheck(subjN) = 'No T1 acpc nifti';
+        subjlist_data.DirCheck{subjN} = 'No kidmid nifti';
         continue
     end
     
-    % if it exists, make subj folder and unzip them there
-    subjdata_dir = fullfile(data_dir,folder(5:end),subjID);
     if ~exist(subjdata_dir),mkdir(subjdata_dir);,end
     
-    try 
-        gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
-            subjdata_dir)
-    catch error
-        subjlist_data.DirCheck(subjN) = 'Cannot unzip kidmid nifti';
+    if ~exist(fullfile(subjdata_dir),kidmid_niigz.name)
+        try 
+            gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
+                subjdata_dir)
+        catch error
+            subjlist_data.DirCheck{subjN} = 'Cannot unzip kidmid nifti';
+            continue
+        end
+    end
+    
+    %% copy T1 acpc
+    T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
+    if isempty(T1_niigz)
+        subjlist_data.DirCheck{subjN} = 'No T1 acpc nifti';
         continue
     end
     
-    try
-        gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
-            subjdata_dir)
-    catch error
-        subjlist_data.DirCheck(subjN) = 'Cannot unzip T1 nifti';
-        contin1ue
+    if ~exist(fullfile(subjdata_dir),T1_niigz.name)
+        try
+            gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
+                subjdata_dir)
+        catch error
+            subjlist_data.DirCheck{subjN} = 'Cannot unzip T1 nifti';
+            contin1ue
+        end
     end
     
     %% find kidmid behavior and move them there
@@ -63,7 +70,7 @@ for subjN = 1:size(subjlist_data,1)
     subj_rawbeh     = fullfile(subjrawevfile_dir,[subjID '*']); 
     
     if ~isempty(dir(subj_rawbeh))
-        subjlist_data.DirCheck(subjN) = 'No behavior data';
+        subjlist_data.DirCheck{subjN} = 'No behavior data';
     else
         copyfile subj_rawbeh subj_behv_dir
     end

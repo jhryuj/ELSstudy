@@ -22,7 +22,7 @@ for subjN = 1:size(subjlist_data,1)
     %% Check if directory exists
     if ~exist(subjrawdata_dir)
         disp([subjID ': No raw data directory']);
-        subjlist_data.DirCheck{subjID} = 'No raw data directory';
+        subjlist_data.DirCheck(subjN) = 'No raw data directory';
         continue
     end
 
@@ -31,10 +31,10 @@ for subjN = 1:size(subjlist_data,1)
     T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
     
     if isempty(kidmid_niigz)
-        subjlist_data.DirCheck{subjID} = 'No kidmid nifti';
+        subjlist_data.DirCheck(subjN) = 'No kidmid nifti';
         continue
     elseif isempty(kidmid_niigz)
-        subjlist_data.DirCheck{subjID} = 'No T1 acpc nifti';
+        subjlist_data.DirCheck(subjN) = 'No T1 acpc nifti';
         continue
     end
     
@@ -46,7 +46,7 @@ for subjN = 1:size(subjlist_data,1)
         gunzip(fullfile(kidmid_niigz.folder,kidmid_niigz.name),...
             subjdata_dir)
     catch error
-        subjlist_data.DirCheck{subjID} = 'Cannot unzip kidmid nifti';
+        subjlist_data.DirCheck(subjN) = 'Cannot unzip kidmid nifti';
         continue
     end
     
@@ -54,7 +54,7 @@ for subjN = 1:size(subjlist_data,1)
         gunzip(fullfile(T1_niigz.folder,T1_niigz.name),...
             subjdata_dir)
     catch error
-        subjlist_data.DirCheck{subjID} = 'Cannot unzip T1 nifti';
+        subjlist_data.DirCheck(subjN) = 'Cannot unzip T1 nifti';
         contin1ue
     end
     
@@ -63,7 +63,7 @@ for subjN = 1:size(subjlist_data,1)
     subj_rawbeh     = fullfile(subjrawevfile_dir,[subjID '*']); 
     
     if ~isempty(dir(subj_rawbeh))
-        subjlist_data.DirCheck{subjID} = 'No behavior data';
+        subjlist_data.DirCheck(subjN) = 'No behavior data';
     else
         copyfile subj_rawbeh subj_behv_dir
     end

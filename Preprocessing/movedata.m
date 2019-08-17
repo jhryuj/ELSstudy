@@ -17,7 +17,7 @@ for subjN = 1:size(subjlist_data,1)
     end
     
     subjrawdata_dir     = fullfile(rawdata_dir,folder,subjID);
-    subjrawevfile_dir   = fullfile(data_dir,folder(5:end),kidmid_EV_bx);
+    subjrawevfile_dir   = fullfile(data_dir,folder(5:end),'kidmid_EV_bx');
     
     %% Check if directory exists
     if ~exist(subjrawdata_dir)

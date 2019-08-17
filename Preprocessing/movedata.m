@@ -35,7 +35,7 @@ for subjN = 1:size(subjlist_data,1)
     subjdata_dir = fullfile(data_dir,folder(5:end),subjID);
     
     %% find kidmid file. unzip in the folder
-    kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*.nii.gz'));
+    kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*_raw.nii.gz'));
     if isempty(kidmid_niigz)
         disp([subjID ': No kidmid nifti']);
         subjlist_data.DirCheck{subjN} = 'No kidmid nifti';

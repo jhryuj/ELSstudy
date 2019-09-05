@@ -15,6 +15,13 @@ diary(logfile); diary on;
 subjlist_data = readtable(subjlist_dir);
 if isnumeric(subjlist_data.DirCheck), subjlist_data.DirCheck = num2cell(subjlist_data.DirCheck);,end
 
+% subjlist_data.rawDataDir
+% subjlist_data.kidmidNifti
+% subjlist_data.kidmidNiftiUnzip
+% subjlist_data.T1Nifti
+% subjlist_data.T1NiftiUnzip
+% subjlist_data.behData
+
 for subjN = 1:size(subjlist_data,1)
     subjID = subjlist_data{subjN,2}{1}; disp(['....copying ' subjID]);    
     
@@ -28,59 +35,88 @@ for subjN = 1:size(subjlist_data,1)
     %% Check if directory exists
     if ~exist(subjrawdata_dir)
         disp([subjID ': No raw data directory']);
-        subjlist_data.DirCheck{subjN} = 'No raw data directory';
-        continue
+        subjlist_data.DirCheck{subjN} = '::No raw data directory::';
+        
+        subjlist_data.rawDataDir{subjN}         = 0;
+        subjlist_data.kidmidNifti{subjN}        = 0;
+        subjlist_data.kidmidNiftiUnzip{subjN}   = 0;
+        subjlist_data.T1Nifti{subjN}            = 0;
+        subjlist_data.T1NiftiUnzip{subjN}       = 0;
+        
+    else % if raw data directory exists
+        subjlist_data.rawDataDir{subjN} = 1;
+        subjdata_dir = fullfile(data_dir,folder(5:end),subjID);
+        
+        %% find kidmid file. unzip in the folder
+        kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*_raw.nii.gz'));
+        if isempty(kidmid_niigz)
+            disp([subjID ': No kidmid nifti']);
+            subjlist_data.DirCheck{subjN} = '::No kidmid nifti::';
+            subjlist_data.kidmidNifti{subjN}        = 0;
+            subjlist_data.kidmidNiftiUnzip{subjN}   = 0;
+        else
+            subjlist_data.kidmidNifti{subjN}            = 1;
+            
+            if ~exist(subjdata_dir),mkdir(subjdata_dir);,end % make destination directory
+
+            if ~exist(fullfile(subjdata_dir,kidmid_niigz.name)) % check if it exists already
+                [result, msg] = unzip_niigz(kidmid_niigz.folder,kidmid_niigz.name,subjdata_dir);
+                if result == 0 
+                    disp([subjID ': Cannot unzip kidmid nifti']);
+                    subjlist_data.DirCheck{subjN} = '::Cannot unzip kidmid nifti::';
+                    subjlist_data.kidmidNiftiUnzip{subjN}   = 0;
+                else
+                    subjlist_data.kidmidNiftiUnzip{subjN}   = 1;
+                end
+            else
+                subjlist_data.kidmidNiftiUnzip{subjN}   = 1;
+            end
+        end
+        
+        %% copy T1 acpc
+        T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
+        if isempty(T1_niigz)
+            disp([subjID ': No T1 acpc nifti']);
+            subjlist_data.DirCheck{subjN} = [subjlist_data.DirCheck{subjN} '::No T1 acpc nifti::'];
+            
+            subjlist_data.T1Nifti{subjN}        = 0;
+            subjlist_data.T1NiftiUnzip{subjN}   = 0; 
+        else
+            subjlist_data.T1Nifti{subjN}        = 1;
+            
+            if ~exist(subjdata_dir),mkdir(subjdata_dir);,end % make destination directory
+
+            if ~exist(fullfile(subjdata_dir,T1_niigz.name))
+                [result, msg] = unzip_niigz(T1_niigz.folder,T1_niigz.name,subjdata_dir);
+                if result == 0 
+                    disp([subjID ': Cannot unzip T1 nifti']);
+                    subjlist_data.DirCheck{subjN} = [subjlist_data.DirCheck{subjN} '::Cannot unzip T1 nifti::'];
+                    subjlist_data.T1NiftiUnzip{subjN}   = 0;
+                else
+                    subjlist_data.T1NiftiUnzip{subjN}   = 1;
+                end
+            else
+                subjlist_data.T1NiftiUnzip{subjN}   = 1;
+            end
+        end
     end
 
-    subjdata_dir = fullfile(data_dir,folder(5:end),subjID);
-    
-    %% find kidmid file. unzip in the folder
-    kidmid_niigz = dir(fullfile(subjrawdata_dir,'kidmid*_raw.nii.gz'));
-    if isempty(kidmid_niigz)
-        disp([subjID ': No kidmid nifti']);
-        subjlist_data.DirCheck{subjN} = 'No kidmid nifti';
-        continue
-    end
-    
-    if ~exist(subjdata_dir),mkdir(subjdata_dir);,end
-    
-    if ~exist(fullfile(subjdata_dir,kidmid_niigz.name))
-        [result, msg] = unzip_niigz(kidmid_niigz.folder,kidmid_niigz.name,subjdata_dir);
-        if result == 0 
-            disp([subjID ': Cannot unzip kidmid nifti']);
-            subjlist_data.DirCheck{subjN} = 'Cannot unzip kidmid nifti';
-            continue
-        end
-    end
-    
-    %% copy T1 acpc
-    T1_niigz = dir(fullfile(subjrawdata_dir,'T1*raw_acpc.nii.gz'));
-    if isempty(T1_niigz)
-        disp([subjID ': No T1 acpc nifti']);
-        subjlist_data.DirCheck{subjN} = 'No T1 acpc nifti';
-        continue
-    end
-    
-    if ~exist(fullfile(subjdata_dir,T1_niigz.name))
-        [result, msg] = unzip_niigz(T1_niigz.folder,T1_niigz.name,subjdata_dir);
-        if result == 0 
-            disp([subjID ': Cannot unzip T1 nifti']);
-            subjlist_data.DirCheck{subjN} = 'Cannot unzip T1 nifti';
-            continue
-        end
-    end
     
     %% find kidmid behavior and move them there
     subj_behv_dir   = fullfile(subjdata_dir,'Behavioral');
     subj_rawbeh     = fullfile(subjrawevfile_dir,[subjID '*']); 
     
-    if ~exist(fullfile(subj_behv_dir,subjID,'model7'))
+    if ~exist(fullfile(subj_behv_dir,subjID,'model7')) % check if the behavior is already copied over.
         if isempty(dir(subj_rawbeh))
             disp([subjID 'No behavior data']);
-            subjlist_data.DirCheck{subjN} = 'No behavior data';
+            subjlist_data.DirCheck{subjN} = [subjlist_data.DirCheck{subjN} '::No behavior data::'];
+            subjlist_data.behData{subjN} = 0;
         else
+            subjlist_data.behData{subjN} = 1;
             copyfile(subj_rawbeh,subj_behv_dir)
         end
+    else
+        subjlist_data.behData{subjN} = 1;
     end
 end
 

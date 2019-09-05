@@ -159,7 +159,6 @@ end
 matlabbatch{1}.spm.stats.fmri_spec.sess.multi_reg = {''};
 matlabbatch{1}.spm.stats.fmri_spec.sess.hpf = 128;
 
-
 % glm in subject space
 cd(prep_dir); glm_dir = fullfile(prep_dir,'glm_nsubjSpace'); mkdir(glm_dir); cd(glm_dir);
 

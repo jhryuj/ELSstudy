@@ -11,6 +11,11 @@
 % subj_id = '074-T1';
 % behavior_dir = 'Z:\users\lrborch\204b\Data\072-T1\Behavioral\072-T1\model7'
 
+% spmdir = '/Volumes/groups/iang/users/lrborch/ELSReward/Codes/spm12';
+% data_dir = '/Volumes/groups/iang/users/lrborch/ELSReward/Data/T1/';
+% subj_id = '074-T1';
+% behavior_dir = '/Volumes/groups/iang/users/lrborch/ELSReward/Data/T1/074-T1/Behavioral/072-T1/model7';
+
 function preprocessing_spm(spmdir,data_dir,subj_id)
 
 %% Organize data. 
@@ -46,7 +51,7 @@ a = spm_select('FPList', data_subj_dir , T1_nii.name);
 % split into 3D
 matlabbatch{1}.spm.util.split.vol = cellstr(f_raw);
 matlabbatch{1}.spm.util.split.outdir = cellstr(prep_dir);
-spm_jobman('run',matlabbatch);
+% spm_jobman('run',matlabbatch);
 matlabbatch = [];
 
 % realign. calculate motion. 
@@ -102,7 +107,9 @@ matlabbatch{5}.spm.spatial.smooth.dtype = 0;
 matlabbatch{5}.spm.spatial.smooth.im = 0;
 matlabbatch{5}.spm.spatial.smooth.prefix = 's';
 
-spm_jobman('run',matlabbatch);
+matlabbatch2 = matlabbatch{5};
+
+spm_jobman('run',matlabbatch2);
 matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 
@@ -112,7 +119,7 @@ behavior_dir = fullfile(data_dir,subj_id,'Behavioral',subj_id,'model7');
 f = spm_select('FPList', prep_dir, '^kidmid.*\.nii$');
 
 TR = 2;
-skipscans = 4; % remove 3 scans
+skipscans = 4; % remove 4 scans in the beginning
 
 % specify GLM
 matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';

@@ -7,7 +7,7 @@ basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
 mrvista_path    = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes/vistasoft-master'; addpath(genpath(mrvista_path));
 data_dir        = fullfile(basedir, 'Data');
 subjlist_dir    = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
-logfile         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes/bash/logs/preprocessing/190817/modedatalog190905.txt';
+logfile         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes/bash/logs/preprocessing/190910/movedatalog190910.txt';
 
 if exist(logfile), delete(logfile);,end
 diary(logfile); diary on;
@@ -78,7 +78,6 @@ for subjN = 1:size(subjlist_data,1)
         if isempty(T1_niigz)
             disp([subjID ': No T1 acpc nifti']);
             subjlist_data.DirCheck{subjN} = [subjlist_data.DirCheck{subjN} '::No T1 acpc nifti::'];
-            
             subjlist_data.T1Nifti{subjN}        = 0;
             subjlist_data.T1NiftiUnzip{subjN}   = 0; 
         else
@@ -120,7 +119,7 @@ for subjN = 1:size(subjlist_data,1)
     end
 end
 
-newlistfile = fullfile(basedir,'ELSt1checklist_preprocessing1.xlsx');
+newlistfile = fullfile(basedir,'ELSt1checklist_preprocessing2.xlsx');
 writetable(subjlist_data,newlistfile)
 
 diary off;

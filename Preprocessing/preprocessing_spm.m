@@ -106,7 +106,7 @@ matlabbatch{4}.spm.spatial.smooth.dtype = 0;
 matlabbatch{4}.spm.spatial.smooth.im = 0;
 matlabbatch{4}.spm.spatial.smooth.prefix = 's';
 
-spm_jobman('run',matlabbatch2);
+spm_jobman('run',matlabbatch);
 matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 

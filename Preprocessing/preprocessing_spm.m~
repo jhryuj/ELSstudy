@@ -107,7 +107,9 @@ matlabbatch{4}.spm.spatial.smooth.dtype = 0;
 matlabbatch{4}.spm.spatial.smooth.im = 0;
 matlabbatch{4}.spm.spatial.smooth.prefix = 's';
 
-%spm_jobman('run',matlabbatch2);
+matlabbatch2 = matlabbatch(4);
+
+spm_jobman('run',matlabbatch2);
 matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 
@@ -134,7 +136,7 @@ matlabbatch{1}.spm.stats.fmri_spec.cvi = 'AR(1)';
 
 % build regressor 
 % remove 3 TRs
-behfiles = {'_ant_all.txt', '_delay_all.txt','_outcome_all.txt','_target_all.txt','_missed.txt',...
+behfies = {'_ant_all.txt', '_delay_all.txt','_outcome_all.txt','_target_all.txt','_missed.txt',...
         '_ant_gain.txt', '_ant_loss.txt','_ant_neut.txt','_ant_nongain.txt',...
         '_ant_nonloss.txt','_gain.txt','_loss.txt','_no_gain.txt',...
         '_no_loss.txt','_nongain_neutral.txt','_nonloss_neutral.txt','_outcome_neutral.txt'};

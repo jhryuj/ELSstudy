@@ -7,7 +7,7 @@ basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
 mrvista_path    = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes/vistasoft-master'; addpath(genpath(mrvista_path));
 data_dir        = fullfile(basedir, 'Data');
 subjlist_dir    = fullfile(basedir,'ELSt1checklist_preprocessing.xlsx');
-logfile         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/Codes/bash/logs/preprocessing/190910/movedatalog190910.txt';
+logfile         = fullfile(basedir,'Codes/bash/logs/preprocessing/190910/movedatalog190910.txt');
 
 if exist(logfile), delete(logfile);,end
 diary(logfile); diary on;

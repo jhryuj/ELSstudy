@@ -84,11 +84,11 @@ matlabbatch{2}.spm.spatial.coreg.estwrite.roptions.mask = 0;
 matlabbatch{2}.spm.spatial.coreg.estwrite.roptions.prefix = 'c';
 
 % normalize
-matlabbatch{3}.spm.spatial.normalise.estwrite.subj.vol = cellstr(a);
+matlabbatch{3}.spm.spatial.normalise.estwrite.subj.vol = cellstr(a); % anatomical
 matlabbatch{3}.spm.spatial.normalise.estwrite.subj.resample = cellstr(spm_file(f,'prefix','cr'));
 matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.biasreg = 0.0001;
 matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.biasfwhm = 60;
-matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.tpm = {fullfile(spmdir, 'tpm','TPM.nii')};
+matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.tpm = {fullfile(spmdir, 'tpm','TPM.nii')}; % tissue probability maps
 matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.affreg = 'mni';
 matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.reg = [0 0.001 0.5 0.05 0.2];
 matlabbatch{3}.spm.spatial.normalise.estwrite.eoptions.fwhm = 0;
@@ -110,7 +110,7 @@ spm_jobman('run',matlabbatch);
 matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 
-%% GLM analysis
+%% GLM analysis -- set up
 behavior_dir = fullfile(data_dir,subj_id,'Behavioral',subj_id,'model7');
 
 f = spm_select('FPList', prep_dir, '^kidmid.*\.nii$');

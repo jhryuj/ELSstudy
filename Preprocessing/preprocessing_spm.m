@@ -20,8 +20,8 @@ function preprocessing_spm(spmdir,data_dir,subj_id)
 %% Organize data. 
 addpath(spmdir) %path to spm.
 spm('defaults', 'fmri')
-% spm_jobman('initcfg')
-% spm_get_defaults('cmdline',true)
+spm_jobman('initcfg')
+spm_get_defaults('cmdline',true)
  
 data_subj_dir = fullfile(data_dir,subj_id);
 cd(data_subj_dir)
@@ -50,7 +50,7 @@ a = spm_select('FPList', data_subj_dir , T1_nii.name);
 % split into 3D
 matlabbatch{1}.spm.util.split.vol = cellstr(f_raw);
 matlabbatch{1}.spm.util.split.outdir = cellstr(prep_dir);
-% spm_jobman('run',matlabbatch);
+spm_jobman('run',matlabbatch);
 matlabbatch = [];
 
 % realign. calculate motion. 
@@ -106,7 +106,7 @@ matlabbatch{4}.spm.spatial.smooth.dtype = 0;
 matlabbatch{4}.spm.spatial.smooth.im = 0;
 matlabbatch{4}.spm.spatial.smooth.prefix = 's';
 
-%spm_jobman('run',matlabbatch2);
+spm_jobman('run',matlabbatch2);
 matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 

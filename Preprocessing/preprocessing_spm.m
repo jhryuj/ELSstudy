@@ -167,6 +167,7 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.multi_reg = {''};
 matlabbatch{1}.spm.stats.fmri_spec.sess.hpf = 128;
 
 %% glm in subject space
+disp([':::::::::::::::::::::::::::::::::::::::Running GLM in subject space:::::::::::::::::::::::::::::::::::::::']
 cd(data_subj_dir); glm_dir = fullfile(data_subj_dir,'glm_nsubjSpace'); mkdir(glm_dir); cd(glm_dir);
 
 % specify
@@ -195,6 +196,7 @@ spm_jobman('run',matlabbatch(2));
 save('matlabbatch_glm_subjspace.mat','matlabbatch')
 
 %% glm in normalized space
+disp([':::::::::::::::::::::::::::::::::::::::Running GLM in normalized space:::::::::::::::::::::::::::::::::::::::']
 cd(data_subj_dir);glm_dir = fullfile(data_subj_dir,'glm_normSpace');mkdir(glm_dir);cd(glm_dir)
 
 % specify
@@ -221,6 +223,7 @@ matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
 
 spm_jobman('run',matlabbatch(2));
 save('matlabbatch_glm_normspace.mat','matlabbatch')
+matlabbatch = [];
 
 %% combine 3D images into 4D for visualization
 f3D = spm_select('FPList', prep_dir, '^crkidmid.*\.nii$');

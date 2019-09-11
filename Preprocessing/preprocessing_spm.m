@@ -10,11 +10,10 @@
 % data_dir = 'Z:\users\lrborch\204b\Data\';
 % subj_id = '074-T1';
 % behavior_dir = 'Z:\users\lrborch\204b\Data\072-T1\Behavioral\072-T1\model7'
-
+% 
 % spmdir = '/Volumes/groups/iang/users/lrborch/ELSReward/Codes/spm12';
 % data_dir = '/Volumes/groups/iang/users/lrborch/ELSReward/Data/T1/';
 % subj_id = '074-T1';
-% behavior_dir = '/Volumes/groups/iang/users/lrborch/ELSReward/Data/T1/074-T1/Behavioral/072-T1/model7';
 
 function preprocessing_spm(spmdir,data_dir,subj_id)
 
@@ -134,11 +133,14 @@ matlabbatch{1}.spm.stats.fmri_spec.cvi = 'AR(1)';
 
 % build regressor 
 % remove 3 TRs
-behfiles = {'_ant_all.txt', '_delay_all.txt','_outcome_all.txt','_target_all.txt','_missed.txt',...
-        '_ant_gain.txt', '_ant_loss.txt','_ant_neut.txt','_ant_nongain.txt',...
-        '_ant_nonloss.txt','_gain.txt','_loss.txt','_no_gain.txt',...
-        '_no_loss.txt','_nongain_neutral.txt','_nonloss_neutral.txt','_outcome_neutral.txt'};
+% behfiles = {'_ant_all.txt', '_delay_all.txt','_outcome_all.txt','_target_all.txt','_missed.txt',...
+%         '_ant_gain.txt', '_ant_loss.txt','_ant_neut.txt','_ant_nongain.txt',...
+%         '_ant_nonloss.txt','_gain.txt','_loss.txt','_no_gain.txt',...
+%         '_no_loss.txt','_nongain_neutral.txt','_nonloss_neutral.txt','_outcome_neutral.txt'};
 
+behfiles = {'_ant_gain.txt', '_ant_loss.txt','_ant_neut.txt','_gain.txt','_loss.txt','_no_gain.txt','_no_loss.txt',...
+        '_outcome_neutral.txt','_delay_all.txt','_target_all.txt','_missed.txt'};
+    
 for condn = 1:length(behfiles)
     a = load(fullfile(behavior_dir,[subj_id behfiles{condn}]));    
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(condn).name = behfiles{condn}(2:end-4);
@@ -152,7 +154,7 @@ end
 matlabbatch{1}.spm.stats.fmri_spec.sess.multi = {''};
 
 rpfile =  spm_select('FPList', prep_dir, '^rp_kidmid.*\.txt$');
-mvmt = load('Z:\users\lrborch\204b\Data\074-T1\spm\rp_kidmid_3mm_2sec_raw_00001.txt');
+mvmt = load(rpfile);
 mvmt = mvmt(skipscans+1:end,:);
 mvmt_names = {'move_x','move_y','move_z','move_p','move_r','move_y'};
 
@@ -164,38 +166,75 @@ end
 matlabbatch{1}.spm.stats.fmri_spec.sess.multi_reg = {''};
 matlabbatch{1}.spm.stats.fmri_spec.sess.hpf = 128;
 
-% glm in subject space
-cd(prep_dir); glm_dir = fullfile(prep_dir,'glm_nsubjSpace'); mkdir(glm_dir); cd(glm_dir);
+%% glm in subject space
+cd(data_subj_dir); glm_dir = fullfile(data_subj_dir,'glm_nsubjSpace'); mkdir(glm_dir); cd(glm_dir);
 
+% specify
 matlabbatch{1}.spm.stats.fmri_spec.dir = {glm_dir};
 matlabbatch{1}.spm.stats.fmri_spec.sess.scans = cellstr(spm_file(f(skipscans+1:end,:),'prefix','cr'));% remove 4 TRs 
+spm_jobman('run',matlabbatch(1));
 
+% plot design matrix before whitening
+SPM = load(fullfile(glm_dir,'SPM.mat'));
+fid = figure('Position', [120 39 1694 957],'DefaultAxesFontSize',18,'defaultLineLineWidth',2);
+imagesc(SPM.SPM.xX.X);c=colorbar;ylabel('images');xlabel('Parameters');c.Label.String = 'au (depends on parameter)';
+ax1 = gca;ax1.XTick = 1:length(SPM.SPM.xX.name); ax1.XTickLabel = SPM.SPM.xX.name;
+set(ax1,'TickLabelInterpreter', 'none');ax1.XTickLabelRotation = 45;
+title([subj_id ' design matrix'])
+saveas(fid,fullfile(glm_dir,['designmatrix.fig']))    
+fid.PaperPositionMode = 'auto';
+print(fullfile(glm_dir,['designmatrix']),'-dpng','-r0');
+close(fid);
+
+% estimate
 matlabbatch{2}.spm.stats.fmri_est.spmmat = {fullfile(glm_dir,'SPM.mat')};
 matlabbatch{2}.spm.stats.fmri_est.write_residuals = 1;
 matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
 
-spm_jobman('run',matlabbatch);
+spm_jobman('run',matlabbatch(2));
 save('matlabbatch_glm_subjspace.mat','matlabbatch')
 
-% glm in normalized space
-cd(prep_dir);glm_dir = fullfile(prep_dir,'glm_normSpace');mkdir(glm_dir);cd(glm_dir)
+%% glm in normalized space
+cd(data_subj_dir);glm_dir = fullfile(data_subj_dir,'glm_normSpace');mkdir(glm_dir);cd(glm_dir)
 
+% specify
 matlabbatch{1}.spm.stats.fmri_spec.dir = {glm_dir};
 matlabbatch{1}.spm.stats.fmri_spec.sess.scans = cellstr(spm_file(f(skipscans+1:end,:),'prefix','swcr')); % remove 4 TRs
+spm_jobman('run',matlabbatch(1));
 
+% plot design matrix before whitening
+SPM = load(fullfile(glm_dir,'SPM.mat'));
+fid = figure('Position', [120 39 1694 957],'DefaultAxesFontSize',18,'defaultLineLineWidth',2);
+imagesc(SPM.SPM.xX.X);c=colorbar;ylabel('images');xlabel('Parameters');c.Label.String = 'au (depends on parameter)';
+ax1 = gca;ax1.XTick = 1:length(SPM.SPM.xX.name); ax1.XTickLabel = SPM.SPM.xX.name;
+set(ax1,'TickLabelInterpreter', 'none');ax1.XTickLabelRotation = 45;
+title([subj_id ' design matrix'])
+saveas(fid,fullfile(glm_dir,['designmatrix_prewhiten.fig']))    
+fid.PaperPositionMode = 'auto';
+print(fullfile(glm_dir,['designmatrix_prewhiten']),'-dpng','-r0');
+close(fid);
+
+% estimate
 matlabbatch{2}.spm.stats.fmri_est.spmmat = {fullfile(glm_dir,'SPM.mat')};
 matlabbatch{2}.spm.stats.fmri_est.write_residuals = 1;
 matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
 
-spm_jobman('run',matlabbatch);
+spm_jobman('run',matlabbatch(2));
 save('matlabbatch_glm_normspace.mat','matlabbatch')
 
 %% combine 3D images into 4D for visualization
 f3D = spm_select('FPList', prep_dir, '^crkidmid.*\.nii$');
-matlabbatch{1}.spm.util.cat.vols = cellstr(f3D);
-matlabbatch{1}.spm.util.cat.name = 'All_crKidMid4D.nii';
-matlabbatch{1}.spm.util.cat.dtype = 4;
-matlabbatch{1}.spm.util.cat.RT = NaN;
+matlabbatch{1}.spm.util.cat.vols    = cellstr(f3D);
+matlabbatch{1}.spm.util.cat.name    = 'All_crKidMid4D.nii';
+matlabbatch{1}.spm.util.cat.dtype   = 4;
+matlabbatch{1}.spm.util.cat.RT      = TR;
+
+f3D = spm_select('FPList', prep_dir, '^swcrkidmid.*\.nii$');
+matlabbatch{2}.spm.util.cat.vols    = cellstr(f3D);
+matlabbatch{2}.spm.util.cat.name    = 'All_swcrKidMid4D.nii';
+matlabbatch{2}.spm.util.cat.dtype   = 4;
+matlabbatch{2}.spm.util.cat.RT      = TR;
+
 spm_jobman('run',matlabbatch);
 matlabbatch = [];
 end

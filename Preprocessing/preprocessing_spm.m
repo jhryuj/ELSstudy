@@ -221,6 +221,7 @@ matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;
 
 spm_jobman('run',matlabbatch(2));
 save('matlabbatch_glm_normspace.mat','matlabbatch')
+matlabbatch = [];
 
 %% combine 3D images into 4D for visualization
 f3D = spm_select('FPList', prep_dir, '^crkidmid.*\.nii$');
@@ -236,5 +237,4 @@ matlabbatch{2}.spm.util.cat.dtype   = 4;
 matlabbatch{2}.spm.util.cat.RT      = TR;
 
 spm_jobman('run',matlabbatch);
-matlabbatch = [];
 end

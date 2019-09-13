@@ -167,7 +167,7 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.multi_reg = {''};
 matlabbatch{1}.spm.stats.fmri_spec.sess.hpf = 128;
 
 %% glm in subject space
-disp([':::::::::::::::::::::::::::::::::::::::Running GLM in subject space:::::::::::::::::::::::::::::::::::::::']
+disp([':::::::::::::::::::::::::::::::::::::::Running GLM in subject space:::::::::::::::::::::::::::::::::::::::'])
 cd(data_subj_dir); glm_dir = fullfile(data_subj_dir,'glm_nsubjSpace'); mkdir(glm_dir); cd(glm_dir);
 
 % specify
@@ -196,7 +196,7 @@ spm_jobman('run',matlabbatch(2));
 save('matlabbatch_glm_subjspace.mat','matlabbatch')
 
 %% glm in normalized space
-disp([':::::::::::::::::::::::::::::::::::::::Running GLM in normalized space:::::::::::::::::::::::::::::::::::::::']
+disp([':::::::::::::::::::::::::::::::::::::::Running GLM in normalized space:::::::::::::::::::::::::::::::::::::::'])
 cd(data_subj_dir);glm_dir = fullfile(data_subj_dir,'glm_normSpace');mkdir(glm_dir);cd(glm_dir)
 
 % specify

@@ -1,5 +1,5 @@
 fsdir = '/Volumes/iang/users/lrborch/204b/Codes/freesurfer6.0.0/';
-%fsdir = '/oak/stanford/groups/iang/users/lrborch/204b/Codes/freesurfer6.0.0/';
+%fsdir = 'Z:\users\lrborch\ELSReward\Codes\ELSstudy\ROIAnalysis';
 
 fslist = fullfile(fsdir,'freesurfer/FreeSurferColorLUT.txt');
 

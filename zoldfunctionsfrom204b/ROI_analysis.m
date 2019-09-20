@@ -65,8 +65,6 @@ function ROI_analysis(data_dir,subj,mrVista_dir,roilist_file)
 
     save(fullfile(outroi_dir,['wholebrain.mat']),'roiidx','roidata','roiVoxelN')    
     
-    
-    
     disp(':::ROI_analysis done!:::')
 
 end

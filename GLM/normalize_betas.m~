@@ -54,6 +54,7 @@ for betaN = 1:11
     betaPCraw_nii.fname  = fullfile(glmdir,sprintf('betaPCraw_%04d.nii',betaN));
     writeFileNifti(betaPCraw_nii);
 end
-end
+
+    end
 
 end

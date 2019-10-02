@@ -22,8 +22,12 @@ addpath(spmdir) %path to spm.
 spm('defaults', 'fmri')
 spm_jobman('initcfg')
 spm_get_defaults('cmdline',true)
- 
-data_subj_dir = fullfile(data_dir,subj_id);
+
+if contains(subj_id,'T1'), datafolder = 'T1';
+elseif contains(subj_id,'TK1'), datafolder = 'TK1';
+end
+
+data_subj_dir = fullfile(data_dir,datafolder,subj_id);
 cd(data_subj_dir)
 
 % make spm output directory
@@ -111,7 +115,7 @@ matlabbatch =[];
 save('matlabbatch_preprocessing.mat','matlabbatch')
 
 %% GLM analysis -- set up
-behavior_dir = fullfile(data_dir,subj_id,'Behavioral',subj_id,'model7');
+behavior_dir = fullfile(data_dir,datafolder,subj_id,'Behavioral',subj_id,'model7');
 
 f = spm_select('FPList', prep_dir, '^kidmid.*\.nii$');
 

@@ -1,0 +1,12 @@
+function convertMgz2Nii(data_dir,subj_
+
+    fs_dir      = fullfile(data_dir,'ELS_T1_FS_subjdir');
+
+    roimgz      = fullfile(fs_dir,subj,'mri','aparc+aseg.mgz');
+    brainmgz    = fullfile(fs_dir,subj,'mri','brain.mgz');
+    
+    system('ml labs')
+    system('ml poldrack')
+    system('ml freesurfer/6.0.1')
+
+end

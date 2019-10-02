@@ -90,11 +90,20 @@ for betaTypeN = 1:length(betaTypeList)
     eval([betaTypeList{betaTypeN} '_table = array2table(' betaTypeList{betaTypeN} '_meanmat,',...
         '''RowNames'',roiName,''VariableNames'',varNames);']);
     filename = fullfile(outroi_dir,[betaTypeList{betaTypeN} '.xlsx']);
-    % filename = fullfile(outroi_dir,[betaTypeList{betaTypeN} '.csv']); 
-    eval(['writetable(' betaTypeList{betaTypeN} '_table,filename,''WriteRowNames'',true);']);
+    eval(['writetable(' betaTypeList{betaTypeN} '_table,filename);']);
 end
 
 save(fullfile(outroi_dir,'roi_betas.mat'),'*_table');
     
 disp('::::::::::::::ROI_analysis done!::::::::::::::')
+end
+
+
+function logical = contains(str1,str2)
+    n1 = length(str1)
+    n2 = length(str2)
+    for idx = 1:-b2
+       if strcmp(str1(idx:idx+length
+    end
+    logical = false;   
 end

@@ -2,19 +2,13 @@
 % unzip the T1 and kidmid for analysis and leave it in the basedir.
 % 2019/08/15
 
-if ismac % assume local on josh's mac
-    basedir         = '/Volumes/groups/iang/users/lrborch/ELSReward/';
-elseif ispc
-    basedir         = 'Z:\users\lrborch\ELSReward\';
-else % assume sherlock
-    basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
-end
+basedir             = setbasepath;
 
 data_dir            = fullfile(basedir,'Data');
 fs_dir              = fullfile(data_dir,'ELS_T1_FS_subjdir');
 
 subjlist_dir        = fullfile(basedir,'ELSt1checklist_preprocessing190923.xlsx'); % latest progress code.
-outputcheck_dir     = fullfile(basedir,'ELSt1checklist_preprocessing190930check.xlsx'); % latest progress code.
+outputcheck_dir     = fullfile(basedir,'ELSt1checklist_preprocessing191007check.xlsx'); % latest progress code.
 subjlist_data = readtable(subjlist_dir);
 
 for subjN = 1:size(subjlist_data,1)
@@ -80,7 +74,7 @@ for subjN = 1:size(subjlist_data,1)
     
     %% check if betas are normalized
     % glm in normalized space 
-    if exist(fullfile(subjdata_dir,'normSpace','betaSNR_0011.nii'),'file')
+    if exist(fullfile(subjdata_dir,'glm_normSpace','betaSNR_0011.nii'),'file')
         subjlist_data.spm_glm_normSpace_normbeta(subjN)         = 1;
     else
         subjlist_data.spm_glm_normSpace_normbeta(subjN)         = 0;
@@ -99,6 +93,20 @@ for subjN = 1:size(subjlist_data,1)
     else
         subjlist_data.roi_betaextract(subjN)         = 0;
     end
+    
+    %% check if contrasts are generated
+    if exist(fullfile(subjdata_dir,'glm_normSpace','contrasts','betaPCraw_loss - neut.nii'),'file')
+        subjlist_data.spm_glm_normSpace_contrastGen(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_normSpace_contrastGen(subjN)         = 0;
+    end
+    
+    if exist(fullfile(subjdata_dir,'glm_nsubjSpace','contrasts','betaPCraw_loss - neut.nii'),'file')
+        subjlist_data.spm_glm_nsubjSpace_contrastGen(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_nsubjSpace_contrastGen(subjN)         = 0;
+    end
+
     
     %% checks from movedata.
     %{

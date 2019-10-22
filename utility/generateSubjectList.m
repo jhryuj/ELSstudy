@@ -21,13 +21,7 @@
 
 
 function [subjliststr, subjlistcell] = generateSubjectList(subjlist_file,conditions,outdir)
-if ismac % assume local on josh's mac
-    basedir         = '/Volumes/groups/iang/users/lrborch/ELSReward/';
-elseif ispc
-    basedir         = 'Z:\users\lrborch\ELSReward\';
-else % assume sherlock
-    basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
-end
+basedir             = setbasepath;
 
 data_dir            = fullfile(basedir,'Data');
 subjlist_dir        = fullfile(basedir,subjlist_file); % latest progress code.
@@ -48,7 +42,7 @@ for subjN = 1:size(subjlist_data,1)
     subjOk = true; % the subjects are okay in the beginning
     
     for condN = 1:length(condFields)
-        condSatisfied   = eval([ 'subjlist_data.' condFields{condN} ' == conditions.' condFields{condN}]);
+        condSatisfied   = eval([ 'subjlist_data.' condFields{condN} '(subjN) == conditions.' condFields{condN}]);
         if condSatisfied
             subjOk  = subjOk && logical(condSatisfied);
         else

@@ -3,7 +3,9 @@
 % 2019/08/15
 
 if ismac % assume local on josh's mac
-    basedir         = '/Volumes/groups/iang/users/lrborch/ELSReward/Codes';
+    basedir         = '/Volumes/groups/iang/users/lrborch/ELSReward/';
+elseif ispc
+    basedir         = 'Z:\users\lrborch\ELSReward\';
 else % assume sherlock
     basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
 end
@@ -12,7 +14,7 @@ data_dir            = fullfile(basedir,'Data');
 fs_dir              = fullfile(data_dir,'ELS_T1_FS_subjdir');
 
 subjlist_dir        = fullfile(basedir,'ELSt1checklist_preprocessing190923.xlsx'); % latest progress code.
-outputcheck_dir     = fullfile(basedir,'ELSt1checklist_preprocessing190923check.xlsx'); % latest progress code.
+outputcheck_dir     = fullfile(basedir,'ELSt1checklist_preprocessing191002check.xlsx'); % latest progress code.
 subjlist_data = readtable(subjlist_dir);
 
 for subjN = 1:size(subjlist_data,1)
@@ -26,56 +28,92 @@ for subjN = 1:size(subjlist_data,1)
     subjfs_dir      = fullfile(fs_dir,subjID);
     
     % check if the subject is good for analysis
-    if subjlist_data.Good4analysis{subjN} == 0
+    if subjlist_data.Good4Analysis(subjN) ~= 1
         disp(['... skipping, subject not good for analysis.']) 
         continue
     end
     
     %% check if freesurfer is done
     % mgz exists
-    if exists(fullfile(subjfs_dir,'mri','aparc+aseg.mgz'),'file')
-        subjlist_data.freesurfer_mgz{subjN}         = 1;
+    if exist(fullfile(subjfs_dir,'mri','aparc+aseg.mgz'),'file')
+        subjlist_data.freesurfer_mgz(subjN)         = 1;
     else
-        subjlist_data.freesurfer_mgz{subjN}         = 0;
+        subjlist_data.freesurfer_mgz(subjN)         = 0;
     end
 
     % mgz conversion
-    if exists(fullfile(subjfs_dir,'mri','aparc+aseg.nii'),'file')
-        subjlist_data.freesurfer_convert2nii{subjN}         = 1;
+    if exist(fullfile(subjfs_dir,'mri','aparc+aseg.nii'),'file')
+        subjlist_data.freesurfer_convert2nii(subjN)         = 1;
     else
-        subjlist_data.freesurfer_convert2nii{subjN}         = 0;
+        subjlist_data.freesurfer_convert2nii(subjN)         = 0;
     end
 
     
     %% check if spm is done
     % coregistered files and smoothed file exists
-    if exists(fullfile(subjdata_dir,'spm','crkidmid_3mm_2sec_raw_00250.nii'),'file')
-        subjlist_data.spm_coreg{subjN}         = 1;
+    if exist(fullfile(subjdata_dir,'spm','crkidmid_3mm_2sec_raw_00250.nii'),'file')
+        subjlist_data.spm_coreg(subjN)         = 1;
     else
-        subjlist_data.spm_coreg{subjN}         = 0;
+        subjlist_data.spm_coreg(subjN)         = 0;
         end
     
-    if exists(fullfile(subjdata_dir,'spm','swcrkidmid_3mm_2sec_raw_00250.nii'),'file')
-        subjlist_data.spm_norm{subjN}         = 1;
+    if exist(fullfile(subjdata_dir,'spm','swcrkidmid_3mm_2sec_raw_00250.nii'),'file')
+        subjlist_data.spm_norm(subjN)         = 1;
     else
-        subjlist_data.spm_norm{subjN}         = 0;
+        subjlist_data.spm_norm(subjN)         = 0;
     end
     
     %% check if spm glm is done
     % glm in subject space done
-    if exists(fullfile(subjdata_dir,'glm_','crkidmid_3mm_2sec_raw_00250.nii'),'file')
-        subjlist_data.spm_coreg{subjN}         = 1;
+    if exist(fullfile(subjdata_dir,'glm_nsubjSpace','Res_0246.nii'),'file')
+        subjlist_data.spm_glm_subjSpace(subjN)         = 1;
     else
-        subjlist_data.spm_coreg{subjN}         = 0;
-        end
-    
-    % glm in normalized space is done.
-    if exists(fullfile(subjdata_dir,'spm','swcrkidmid_3mm_2sec_raw_00250.nii'),'file')
-        subjlist_data.spm_norm{subjN}         = 1;
-    else
-        subjlist_data.spm_norm{subjN}         = 0;
+        subjlist_data.spm_glm_subjSpace(subjN)         = 0;
     end
     
+    % glm in normalized space is done.
+    if exist(fullfile(subjdata_dir,'glm_normSpace','Res_0246.nii'),'file')
+        subjlist_data.spm_glm_normSpace(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_normSpace(subjN)         = 0;
+    end
+    
+    %% check if betas are normalized
+    % glm in normalized space 
+    if exist(fullfile(subjdata_dir,'glm_normSpace','betaSNR_0011.nii'),'file')
+        subjlist_data.spm_glm_normSpace_normbeta(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_normSpace_normbeta(subjN)         = 0;
+    end
+    
+    % glm in subject space done
+    if exist(fullfile(subjdata_dir,'glm_nsubjSpace','betaSNR_0011.nii'),'file')
+        subjlist_data.spm_glm_subjSpace_normbeta(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_subjSpace_normbeta(subjN)         = 0;
+    end
+
+    % check if roi is done
+    if exist(fullfile(subjdata_dir,'glm_nsubjSpace','rois','roi_betas.mat'),'file')
+        subjlist_data.roi_betaextract(subjN)         = 1;
+    else
+        subjlist_data.roi_betaextract(subjN)         = 0;
+    end
+    
+    %% check if contrasts are generated
+    if exist(fullfile(subjdata_dir,'glm_normSpace','contrast','betaPCraw_loss - neut.nii'),'file')
+        subjlist_data.spm_glm_normSpace_contrastGen(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_normSpace_contrastGen(subjN)         = 0;
+    end
+    
+    
+    if exist(fullfile(subjdata_dir,'glm_nsubjSpace','contrast','betaPCraw_loss - neut.nii'),'file')
+        subjlist_data.spm_glm_normSpace_contrastGen(subjN)         = 1;
+    else
+        subjlist_data.spm_glm_normSpace_contrastGen(subjN)         = 0;
+    end
+
     
     %% checks from movedata.
     %{

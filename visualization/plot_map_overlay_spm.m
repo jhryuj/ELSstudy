@@ -57,11 +57,11 @@ data         = data.*int16(abs(nii_thresh.data)>threshval);
 datapos      = data.*int16(data>0);
 dataneg      = data.*int16(data<0);
 
-nii_temp.fname       = fullfile(outdir,[outfile '_pos.nii']); 
+nii_temp.fname      = fullfile(outdir,[outfile '_pos.nii']); 
 nii_temp.data       = datapos; 
 writeFileNifti(nii_temp); 
 
-nii_temp.fname        = fullfile(outdir,[outfile '_neg.nii']); 
+nii_temp.fname       = fullfile(outdir,[outfile '_neg.nii']); 
 nii_temp.data        = dataneg; 
 writeFileNifti(nii_temp);
 

@@ -4,13 +4,9 @@
 
 function generateContrasts(subjID)
 
-if ismac % assume local on josh's mac
-    basedir         = '/Volumes/groups/iang/users/lrborch/ELSReward/';
-elseif ispc % assume josh's pc at home
-    basedir         = 'Z:\users\lrborch\ELSReward\';
-else % assume sherlock
-    basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/';
-end
+disp([subjID ' running generate Contrasts'])
+
+basedir             = setbasepath;
 
 if contains(subjID,'T1'), folder = 'T1';
 elseif contains(subjID,'TK1'), folder = 'TK1';
@@ -20,6 +16,7 @@ mrVista_dir = fullfile(basedir,'Codes','vistasoft-master');addpath(genpath(mrVis
 spmdir      = fullfile(basedir,'Codes','spm12');addpath(spmdir);
 
 %% define betas and contrasts
+disp([subjID ' defining contrasts'])
 betaNorms       = {'beta','betaSNR', 'betaPCraw'};
 
 % 8 contrasts
@@ -45,12 +42,15 @@ contrastVectors{7} = zeros(1,11); contrastVectors{7}(4) = 1;  contrastVectors{7}
 contrastVectors{8} = zeros(1,11); contrastVectors{8}(5) = 1;  contrastVectors{8}(2) = -1; 
 
 %% initialize and run spm
+disp([subjID ' running spm'])
 spm('defaults', 'fmri')
 spm_jobman('initcfg')
 spm_get_defaults('cmdline',true)
 
 glmlist = {'glm_nsubjSpace','glm_normSpace'};
 for glmN = 1:length(glmlist)
+    disp([subjID ' calculating contrasts for ' glmlist{glmN}])
+
     glmdir      = fullfile(basedir,'Data',folder,subjID,glmlist{glmN}); 
     spmmat      = fullfile(glmdir,'SPM.mat');
     contrastdir = fullfile(glmdir,'contrasts'); 
@@ -99,4 +99,6 @@ for glmN = 1:length(glmlist)
     end
     end
 end
+
+disp([subjID ' contrasts generated'])
 end

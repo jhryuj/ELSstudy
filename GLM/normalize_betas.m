@@ -14,6 +14,7 @@ function normalize_betas(data_dir,subj)
     
     glmlist = {'glm_nsubjSpace','glm_normSpace'};
 for glmN = 1:length(glmlist)
+    disp(['Normalizing ' glmlist{glmN} '....'])
     glmdir      = fullfile(data_dir,datafolder,subj,glmlist{glmN}); 
     
     outroi_dir  = fullfile(glmdir,'rois'); if ~exist(outroi_dir), mkdir(outroi_dir);,end

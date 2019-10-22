@@ -4,22 +4,25 @@
 
 function generateContrasts(subjID)
 
-if ismac % assume local on josh's mac
+disp([subjID ' running generate Contrasts'])
+if ismac % assume local on josh's mac (running matlab 2015a)
     basedir         = '/Volumes/groups/iang/users/lrborch/ELSReward/';
+    addpath(fullfile(basedir,'Codes','utility'));
 elseif ispc % assume josh's pc at home
     basedir         = 'Z:\users\lrborch\ELSReward\';
 else % assume sherlock
-    basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward';
+    basedir         = '/oak/stanford/groups/iang/users/lrborch/ELSReward/';
 end
 
 if contains(subjID,'T1'), folder = 'T1';
 elseif contains(subjID,'TK1'), folder = 'TK1';
 end
 
-mrVista_dir = fullfile(basedir, 'Codes','vistasoft-master');addpath(genpath(mrVista_dir));
+mrVista_dir = fullfile(basedir,'Codes','vistasoft-master');addpath(genpath(mrVista_dir));
 spmdir      = fullfile(basedir,'Codes','spm12');addpath(spmdir);
 
 %% define betas and contrasts
+disp([subjID ' defining contrasts'])
 betaNorms       = {'beta','betaSNR', 'betaPCraw'};
 
 % 8 contrasts
@@ -32,7 +35,7 @@ contrastVectors{1} = zeros(1,11); contrastVectors{1}(1) = 1;  contrastVectors{1}
 % antLoss - neut
 contrastVectors{2} = zeros(1,11); contrastVectors{2}(2) = 1;  contrastVectors{2}(3) = -1;
 % antGain - antLoss
-contrastVectors{3} = zeros(1,11); contrastVectors{3}(1) = 1;  contrastVectors{3}(1) = -1; 
+contrastVectors{3} = zeros(1,11); contrastVectors{3}(1) = 1;  contrastVectors{3}(2) = -1; 
 % gain - neut
 contrastVectors{4} = zeros(1,11); contrastVectors{4}(4) = 1;  contrastVectors{4}(6) = -1;
 % loss - neut
@@ -45,16 +48,17 @@ contrastVectors{7} = zeros(1,11); contrastVectors{7}(4) = 1;  contrastVectors{7}
 contrastVectors{8} = zeros(1,11); contrastVectors{8}(5) = 1;  contrastVectors{8}(2) = -1; 
 
 %% initialize and run spm
-addpath(spmdir) %path to spm.
+disp([subjID ' running spm'])
 spm('defaults', 'fmri')
 spm_jobman('initcfg')
 spm_get_defaults('cmdline',true)
 
 glmlist = {'glm_nsubjSpace','glm_normSpace'};
 for glmN = 1:length(glmlist)
+    
     glmdir      = fullfile(basedir,'Data',folder,subjID,glmlist{glmN}); 
     spmmat      = fullfile(glmdir,'SPM.mat');
-    contrastdir = fullfile(basedir,'contrasts'); 
+    contrastdir = fullfile(glmdir,'contrasts'); 
     if ~exist(contrastdir,'dir'),mkdir(contrastdir);,end
     
     load(fullfile(glmdir,'SPM.mat'),'SPM')
@@ -99,6 +103,7 @@ for glmN = 1:length(glmlist)
         writeFileNifti(contrast_nii);
     end
     end
-
 end
+
+disp([subjID ' contrasts generated'])
 end

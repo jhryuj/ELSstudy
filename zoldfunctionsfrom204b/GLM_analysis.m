@@ -27,7 +27,6 @@ function GLM_analysis(data_dir, subj,mrVista_dir,spm_dir,roilist_file,outfolder)
 
     niitemplate = readFileNifti(fullfile(data_dir,subj,'spm','crkidmid_3mm_2sec_raw_00001.nii')); % coregistered nifti. 
 
-    designmat = designmat((skipframe+1):end,:);
     % *** consider demeaning the designmatrix; or whitening..
 
     % run whole brain
@@ -40,7 +39,8 @@ function GLM_analysis(data_dir, subj,mrVista_dir,spm_dir,roilist_file,outfolder)
     for n = 1:length(roiNum)
         if exist(fullfile(outroi_dir,[roiName{n} '.mat']))
             disp(['Running Roi ' roiName{n}])
-            runGLM(GLMout_dir,outroi_dir,designmat,roiName{n},niitemplate,skipframe,columnNames)
+            wb2roi(GLMout_dir,outroi_dir,designmat,roiName,niitemplate,skipframe,columnNames)        
+            % runGLM(GLMout_dir,outroi_dir,designmat,roiName{n},niitemplate,skipframe,columnNames)
         end
     end
 
@@ -79,6 +79,7 @@ function runGLM(GLMout_dir,outroi_dir,designmat,roiName,niitemplate,skipframe,co
     cd(fullfile(GLMout_dir,roiName))
     
     %% generate images
+    %{
     % beta image
     for regN = 1:size(designmat,2)
         betanii      =  niitemplate; 
@@ -99,6 +100,7 @@ function runGLM(GLMout_dir,outroi_dir,designmat,roiName,niitemplate,skipframe,co
     r2nii.data      = roi3d;
     
     writeFileNifti(r2nii);
+    %}
     
 end
 

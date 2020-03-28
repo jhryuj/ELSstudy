@@ -11,12 +11,11 @@
 % subj = '006-T1';
 % spmdir = '/Volumes/iang/users/lrborch/204b/Codes/spm12'; %'/oak/stanford/groups/iang/users/lrborch/204b/Codes/spm12';
 
-function build_designMat(data_dir,subj,spmdir)
+function build_designMat(data_dir,subj,spmdir,outfolder)
     % conditions to include:
     conditionnames = {'ant_gain', 'ant_loss','ant_neut', 'gain','loss','no_gain','no_loss','outcome_neutral', 'missed'};
 
     % short descriptions of the design
-    outfolder = ['Analysis_190520']; %datestr(now,'yymmdd')]
     description = 'Initial Analysis. Gain, Loss, Neutral, Conditions';
 
     %% organize data
@@ -35,6 +34,7 @@ function build_designMat(data_dir,subj,spmdir)
     hrf = spm_hrf(0.1);
     % TR
     TR          = 2;
+    skipframe   = 4;
 
     % organize all the parameters in a struct.
     dmParams = struct(); dmParams.outfolder = outfolder; dmParams.subj = subj;
@@ -44,11 +44,13 @@ function build_designMat(data_dir,subj,spmdir)
     %% create design matrix
     % get motion plots
     rpfile = dir(fullfile(preprocessSPM_dir,'rp_*.txt'));
-    rpdata = load(fullfile(rpfile.folder,rpfile.name));
+    rpdata = load(fullfile(preprocessSPM_dir,rpfile.name));
     nframes = size(rpdata,1); 
+    
+    rpdata = rpdata(skipframe+1:end,:);
 
     % get timepoints (downsample convolved response)
-    scantimes = 0:TR:(TR*(nframes-1));
+    scantimes = 0:TR:(TR*(nframes-skipframe-1));
 
     % add behavioral conditions
     load(fullfile(data_dir,subj,'Behavioral','behconditions.mat'))
@@ -68,7 +70,7 @@ function build_designMat(data_dir,subj,spmdir)
     % *** maybe build a conditionDesign without convolution, for visualization
 
     % add run regressor, and motion regressor
-    designmat = [designmat_conds_conv_ds, ones(nframes,1), rpdata];
+    designmat = [designmat_conds_conv_ds, ones(nframes-skipframe,1), rpdata];
 
     extraNames  = {'Run','x (mm)', 'y (mm)', 'z (mm)',  ...
         'pitch (rad)', 'roll (rad)', 'yaw (rad)'};
@@ -81,8 +83,8 @@ function build_designMat(data_dir,subj,spmdir)
         'dmParams','designmat','designmat_conds_conv','designmat_conds','columnNames')
 
     %% plot design matrix
-    f = figure('visible','off','Position', [42 111 1570 806]);
-    imagesc(designmat); c = colorbar; c.Label.String = 'A.U. (depending on column)';
+    f = figure('visible','off','Position', [42 111 1570 806],'DefaultAxesFontSize',18,'defaultLineLineWidth',2);
+    imagesc(designmat); c = colorbar; c.Label.String = 'Units (depends on column)';
     ylabel('Frames'); set(gca,'XTick',[1:length(columnNames)],'XTickLabel',columnNames);
     saveas(f,fullfile(GLM_dir,outfolder,'designmat.fig')); % this is invisible. turn on visible when opening. 
     saveas(f,fullfile(GLM_dir,outfolder,'designmat.png'));

@@ -117,7 +117,7 @@ for i = 1:nimgs
 %       obj.img(i).prop = 1;
 %     end
     obj.img(i).cmap = sf_return_cmap(cprompt, dcmap);
-    obj.img(i).range = [0.01 8];
+    obj.img(i).range = [0.01 1]; %[0.01 8]
   end
 end
 ncmaps=length(cscale);

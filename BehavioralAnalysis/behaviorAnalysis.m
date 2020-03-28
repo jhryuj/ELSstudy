@@ -29,7 +29,8 @@ function behaviorAnalysis(data_dir,subj)
     condition_times = struct();
 
     if plottimeline
-        figure;hold on;
+        f = figure('visible','off','Position', [42 111 1570 806],'DefaultAxesFontSize',18,'defaultLineLineWidth',2);
+        hold on;
     end
 
     time = 0:0.1:500; %0.1s time resolution;
